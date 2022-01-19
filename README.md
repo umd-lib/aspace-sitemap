@@ -6,26 +6,31 @@ Python 3 Flask application to generate and serve a sitemap.xml file for Archives
 
 * Python 3
 
-## Installation
-
-```bash
-# clone this repository
-git clone git@github.com:umd-lib/aspace-sitemap.git
-
-# install requirements
-cd aspace-sitemap
-pip install -r requirements.txt
-```
-
 ## Running the Webapp
 
 ```bash
 # create a .env file (then manually update environment variables)
 cp .env-template .env
+```
+
+### Running locally
+
+```bash
+# install requirements
+pip install -r requirements.txt
 
 # run the app with Flask
 flask run
 ```
+
+### Running in Docker
+
+```bash
+docker build -t aspace-sitemap .
+docker run -it --rm -p 5000:5000 --env-file=.env --read-only aspace-sitemap
+```
+
+### Endpoints
 
 This will start the webapp listening on the default port 5000 on localhost
 (127.0.0.1), and running in [Flask's debug mode].
