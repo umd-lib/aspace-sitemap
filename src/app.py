@@ -18,10 +18,14 @@ load_dotenv('../.env')
 
 # Get environment variables
 env = {}
-for key in ('ASPACE_API_URL', 'ASPACE_API_USERNAME', 'ASPACE_API_PASSWORD', 'ASPACE_PUBLIC_URL'):
+for key in ('ASPACE_API_URL', 'ASPACE_API_USERNAME',
+            'ASPACE_API_PASSWORD', 'ASPACE_PUBLIC_URL'):
     env[key] = os.environ.get(key)
     if env[key] is None:
         raise RuntimeError(f'Must provide environment variable: {key}')
+
+debug = os.environ.get('FLASK_ENV') == 'development'
+
 
 def generate_sitemap():
     """ Generate the sitemap. """
@@ -31,12 +35,16 @@ def generate_sitemap():
         'baseurl': env['ASPACE_API_URL'],
         'username': env['ASPACE_API_USERNAME'],
         'password': env['ASPACE_API_PASSWORD'],
-        'default_config': 'DEBUG_TO_STDERR',
+        'default_config': 'INFO_TO_STDERR',
     }
 
     logger = logging.get_logger("sitemap")
-    logging.setup_logging(stream=sys.stderr, level="DEBUG")
-    logger.info(f'config={config}')
+    if debug:
+        logging.setup_logging(stream=sys.stderr, level="DEBUG")
+
+    logger.debug(f'config={config}')
+
+    logger.info("Begin generating sitemap.xml")
 
     aspace = ASpace(**config)
 
@@ -66,7 +74,7 @@ def generate_sitemap():
             loc.text = f'{env["ASPACE_PUBLIC_URL"]}{repo.uri}'
             url.tail = '\n'
 
-            logger.info(f'{repo.uri} {repo.display_string}')
+            logger.debug(f'{repo.uri} {repo.display_string}')
 
             # Iterate over published resources
             for resource in repo.resources:
@@ -76,17 +84,21 @@ def generate_sitemap():
                     loc.text = f'{env["ASPACE_PUBLIC_URL"]}{resource.uri}'
                     url.tail = '\n'
 
-                    logger.info(f'{resource.uri} {resource.title}')
+                    logger.debug(f'{resource.uri} {resource.title}')
 
             # Iterate over published digital objects
             for digital_object in repo.digital_objects:
                 if digital_object.publish:
                     url = et.SubElement(urlset, et.QName(NS, 'url'))
                     loc = et.SubElement(url, et.QName(NS, 'loc'))
-                    loc.text = f'{env["ASPACE_PUBLIC_URL"]}{digital_object.uri}'
+                    loc.text = \
+                        f'{env["ASPACE_PUBLIC_URL"]}{digital_object.uri}'
                     url.tail = '\n'
 
-                    logger.info(f'{digital_object.uri} {digital_object.title}')
+                    logger.debug(f'{digital_object.uri}' +
+                                 f'{digital_object.title}')
+
+    logger.info("sitemap.xml generation complete")
 
     # Write the XML Sitemap to stdout
     return et.tostring(
@@ -96,6 +108,7 @@ def generate_sitemap():
             xml_declaration=True,
             default_namespace=NS)
 
+
 # Generate the sitemap once a startup
 sitemap = generate_sitemap()
 
@@ -103,13 +116,16 @@ sitemap = generate_sitemap()
 app = Flask(__name__)
 Compress(app)
 
+
 @app.route('/')
 def root():
     return {'status': 'ok'}
 
+
 @app.route('/ping')
 def ping():
     return {'status': 'ok'}
+
 
 @app.route('/sitemap.xml')
 def get_sitemap():
