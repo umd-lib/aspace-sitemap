@@ -1,6 +1,6 @@
 # aspace-sitemap
 
-Python 3 Flask application to generate and serve a sitemap.xml file for ArchivesSpace public interface using the the ArchivesSpace API and the ArchivesSnake Library.
+Python 3 Flask application to generate and serve a sitemap.xml file for ArchivesSpace public interface using the ArchivesSpace API and the ArchivesSnake Library.
 
 ## Requires
 
@@ -13,7 +13,7 @@ Python 3 Flask application to generate and serve a sitemap.xml file for Archives
 cp .env-template .env
 ```
 
-### Running locally
+### Running locally, directly with flask
 
 ```bash
 # install requirements
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 flask run
 ```
 
-### Running in Docker
+### Running locally, in Docker
 
 ```bash
 docker build -t aspace-sitemap .
