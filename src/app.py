@@ -95,7 +95,7 @@ def generate_sitemap():
                         f'{env["ASPACE_PUBLIC_URL"]}{digital_object.uri}'
                     url.tail = '\n'
 
-                    logger.debug(f'{digital_object.uri}' +
+                    logger.debug(f'{digital_object.uri} ' +
                                  f'{digital_object.title}')
 
     logger.info("sitemap.xml generation complete")
